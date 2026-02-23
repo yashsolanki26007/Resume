@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Builder</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .glassmorphic { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+    .accent-gradient { background: linear-gradient(135deg, #ec4899 0%, #f97316 100%); }
+    .accent-gradient-light { background: linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(249,115,22,0.1) 100%); }
+    .btn-primary { background: linear-gradient(135deg, #ec4899 0%, #f97316 100%); transition: transform 0.3s; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(236,72,153,0.4); }
+    .resume-a4 { width: 210mm; height: 297mm; background: white; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    @media print { body { background: white; } .no-print { display: none; } }
+    .skill-chip { background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); }
+    .section-title { color: #ec4899; border-bottom: 3px solid #f97316; }
+    .animate-in { animation: slideIn 0.5s ease-out forwards; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="h-full overflow-auto">
+  <div class="w-full min-h-full p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <header class="text-center text-white mb-8 animate-in">
+        <h1 id="app-title" class="text-5xl md:text-6xl font-bold mb-2">Resume Builder</h1>
+        <p class="text-xl opacity-90">Instant Professional Resume Generator</p>
+      </header>
+
+      <div class="grid lg:grid-cols-2 gap-8">
+        <!-- Form -->
+        <div class="glassmorphic rounded-3xl p-8 shadow-2xl animate-in" style="animation-delay: 0.1s;">
+          <form id="form" class="space-y-5">
+            <!-- Photo -->
+            <div class="text-center">
+              <div id="photo-preview" class="w-32 h-32 mx-auto mb-4 rounded-full accent-gradient-light border-4 border-white flex items-center justify-center overflow-hidden">
+                <svg class="w-16 h-16 text-pink-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              </div>
+              <label class="cursor-pointer inline-block btn-primary text-white px-6 py-2 rounded-full font-semibold">
+                📸 Upload Photo
+                <input type="file" id="photo" accept="image/*" class="hidden">
+              </label>
+            </div>
+
+            <!-- Personal -->
+            <div class="grid md:grid-cols-2 gap-4">
+              <input type="text" id="name" placeholder="Full Name" required class="p-3 rounded-lg border-2 border-transparent focus:border-pink-500 focus:outline-none bg-gray-50">
+              <input type="text" id="title" placeholder="Job Title" required class="p-3 rounded-lg border-2 border-transparent focus:border-pink-500 focus:outline-none bg-gray-50">
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <input type="email" id="email" placeholder="Email" required class="p-3 rounded-lg border-2 border-transparent focus:border-pink-500 focus:outline-none bg-gray-50">
+              <input type="tel" id="phone" placeholder="Phone" class="p-3 rounded-lg border-2 border-transparent focus:border-pink-500 focus:outline-none bg-gray-50">
+            </div>
+            <input type="text" id="location" placeholder="Location" class="w-full p-3 rounded-lg border-2 border-transparent focus:border-pink-500 focus:outline-none bg-gray-50">
+            <textarea id="summary" placeholder="Professional Summary" rows="3" class="w-full p-3 rounded-lg border-2 border-transparent focus:border-pink-500 focus:outline-none bg-gray-50 resize-none"></textarea>
+
+            <!-- Experience -->
+            <div class="bg-gray-100 p-4 rounded-xl">
+              <h3 class="font-bold text-pink-600 mb-3">💼 Work Experience</h3>
+              <input type="text" id="exp-title" placeholder="Job Title" class="w-full p-2 mb-2 rounded bg-white border border-gray-200 focus:outline-pink-500">
+              <input type="text" id="exp-company" placeholder="Company" class="w-full p-2 mb-2 rounded bg-white border border-gray-200 focus:outline-pink-500">
+              <input type="text" id="exp-duration" placeholder="Duration (e.g., 2020-2023)" class="w-full p-2 mb-2 rounded bg-white border border-gray-200 focus:outline-pink-500">
+              <textarea id="exp-desc" placeholder="Description" rows="2" class="w-full p-2 rounded bg-white border border-gray-200 focus:outline-pink-500 resize-none"></textarea>
+            </div>
+
+            <!-- Education -->
+            <div class="bg-gray-100 p-4 rounded-xl">
+              <h3 class="font-bold text-pink-600 mb-3">🎓 Education</h3>
+              <input type="text" id="edu-degree" placeholder="Degree" class="w-full p-2 mb-2 rounded bg-white border border-gray-200 focus:outline-pink-500">
+              <input type="text" id="edu-school" placeholder="School/University" class="w-full p-2 mb-2 rounded bg-white border border-gray-200 focus:outline-pink-500">
+              <input type="text" id="edu-year" placeholder="Year" class="w-full p-2 rounded bg-white border border-gray-200 focus:outline-pink-500">
+            </div>
+
+            <!-- Skills -->
+            <input type="text" id="skills" placeholder="Skills (comma-separated)" class="w-full p-3 rounded-lg border-2 border-transparent focus:border-pink-500 focus:outline-none bg-gray-50">
+
+            <!-- Links -->
+            <div class="grid md:grid-cols-2 gap-3">
+              <input type="url" id="linkedin" placeholder="LinkedIn URL" class="p-3 rounded-lg border-2 border-transparent focus:border-pink-500 focus:outline-none bg-gray-50">
+              <input type="url" id="website" placeholder="Portfolio URL" class="p-3 rounded-lg border-2 border-transparent focus:border-pink-500 focus:outline-none bg-gray-50">
+            </div>
+
+            <button type="submit" class="w-full btn-primary text-white py-4 rounded-xl font-bold text-lg shadow-lg">
+              ✨ Generate Resume
+            </button>
+          </form>
+        </div>
+
+        <!-- Resume Preview -->
+        <div class="animate-in" style="animation-delay: 0.2s;">
+          <div id="empty" class="glassmorphic rounded-3xl p-12 text-center text-gray-600 h-full flex flex-col justify-center">
+            <div class="text-6xl mb-4">📄</div>
+            <p class="text-xl font-semibold">Your Resume Preview</p>
+            <p class="text-sm mt-2">Fill the form and click Generate</p>
+          </div>
+
+          <div id="resume-container" class="hidden">
+            <!-- Download Buttons -->
+            <div class="flex gap-3 mb-4 no-print">
+              <button onclick="downloadPDF()" class="flex-1 btn-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg">
+                📥 Download PDF
+              </button>
+              <button onclick="window.print()" class="flex-1 bg-blue-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-blue-600">
+                🖨️ Print
+              </button>
+            </div>
+
+            <!-- Resume -->
+            <div id="resume" class="resume-a4 p-12 rounded-lg overflow-auto">
+              <div class="mb-8 flex gap-6">
+                <div id="resume-photo" class="w-28 h-28 rounded-full bg-gradient-to-br from-pink-200 to-orange-200 flex-shrink-0 overflow-hidden border-4 border-pink-500"></div>
+                <div class="flex-1">
+                  <h1 id="resume-name" class="text-4xl font-bold text-gray-900 mb-1"></h1>
+                  <p id="resume-title" class="text-xl text-pink-600 font-semibold mb-3"></p>
+                  <div id="resume-contact" class="text-sm text-gray-700 space-y-1"></div>
+                </div>
+              </div>
+
+              <div class="mb-6" id="summary-section">
+                <h2 class="section-title text-xl font-bold py-2 mb-3">About</h2>
+                <p id="resume-summary" class="text-gray-800 leading-relaxed"></p>
+              </div>
+
+              <div class="mb-6 hidden" id="exp-section">
+                <h2 class="section-title text-xl font-bold py-2 mb-3">Experience</h2>
+                <div id="resume-exp" class="space-y-4"></div>
+              </div>
+
+              <div class="mb-6 hidden" id="edu-section">
+                <h2 class="section-title text-xl font-bold py-2 mb-3">Education</h2>
+                <div id="resume-edu" class="space-y-3"></div>
+              </div>
+
+              <div class="mb-6 hidden" id="skills-section">
+                <h2 class="section-title text-xl font-bold py-2 mb-3">Skills</h2>
+                <div id="resume-skills" class="flex flex-wrap gap-2"></div>
+              </div>
+
+              <div id="links-section" class="hidden">
+                <h2 class="section-title text-xl font-bold py-2 mb-3">Links</h2>
+                <div id="resume-links" class="flex gap-4 text-sm"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const defaultConfig = { app_title: 'Resume Builder Pro' };
+    let photoData = null;
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: (config) => {
+          document.getElementById('app-title').textContent = config.app_title || defaultConfig.app_title;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([['app_title', config.app_title || defaultConfig.app_title]])
+      });
+    }
+
+    document.getElementById('photo').addEventListener('change', (e) => {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        photoData = evt.target.result;
+        document.getElementById('photo-preview').innerHTML = `<img src="${photoData}" class="w-full h-full object-cover">`;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    document.getElementById('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      generateResume();
+    });
+
+    function generateResume() {
+      const data = {
+        name: document.getElementById('name').value,
+        title: document.getElementById('title').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        location: document.getElementById('location').value,
+        summary: document.getElementById('summary').value,
+        exp: { title: document.getElementById('exp-title').value, company: document.getElementById('exp-company').value, duration: document.getElementById('exp-duration').value, desc: document.getElementById('exp-desc').value },
+        edu: { degree: document.getElementById('edu-degree').value, school: document.getElementById('edu-school').value, year: document.getElementById('edu-year').value },
+        skills: document.getElementById('skills').value,
+        linkedin: document.getElementById('linkedin').value,
+        website: document.getElementById('website').value
+      };
+
+      document.getElementById('empty').classList.add('hidden');
+      document.getElementById('resume-container').classList.remove('hidden');
+
+      // Photo
+      if (photoData) {
+        document.getElementById('resume-photo').innerHTML = `<img src="${photoData}" class="w-full h-full object-cover">`;
+      } else {
+        document.getElementById('resume-photo').innerHTML = `<div class="w-full h-full flex items-center justify-center text-4xl font-bold text-pink-600">${data.name.charAt(0).toUpperCase()}</div>`;
+      }
+
+      // Name & Title
+      document.getElementById('resume-name').textContent = data.name;
+      document.getElementById('resume-title').textContent = data.title;
+
+      // Contact
+      let contact = [];
+      if (data.email) contact.push(`📧 ${data.email}`);
+      if (data.phone) contact.push(`📱 ${data.phone}`);
+      if (data.location) contact.push(`📍 ${data.location}`);
+      document.getElementById('resume-contact').innerHTML = contact.map(c => `<div>${c}</div>`).join('');
+
+      // Summary
+      document.getElementById('resume-summary').textContent = data.summary;
+
+      // Experience
+      if (data.exp.title || data.exp.company) {
+        document.getElementById('exp-section').classList.remove('hidden');
+        document.getElementById('resume-exp').innerHTML = `
+          <div>
+            <div class="flex justify-between"><h3 class="font-bold text-gray-900">${data.exp.title}</h3><span class="text-sm text-gray-600">${data.exp.duration}</span></div>
+            <p class="text-pink-600 font-semibold">${data.exp.company}</p>
+            <p class="text-gray-800 mt-1 text-sm">${data.exp.desc}</p>
+          </div>
+        `;
+      } else {
+        document.getElementById('exp-section').classList.add('hidden');
+      }
+
+      // Education
+      if (data.edu.degree || data.edu.school) {
+        document.getElementById('edu-section').classList.remove('hidden');
+        document.getElementById('resume-edu').innerHTML = `
+          <div>
+            <h3 class="font-bold text-gray-900">${data.edu.degree}</h3>
+            <p class="text-pink-600 font-semibold">${data.edu.school}</p>
+            <p class="text-sm text-gray-600">${data.edu.year}</p>
+          </div>
+        `;
+      } else {
+        document.getElementById('edu-section').classList.add('hidden');
+      }
+
+      // Skills
+      if (data.skills) {
+        document.getElementById('skills-section').classList.remove('hidden');
+        document.getElementById('resume-skills').innerHTML = data.skills.split(',').map(s => 
+          `<span class="skill-chip text-white px-3 py-1 rounded-full text-sm font-semibold">${s.trim()}</span>`
+        ).join('');
+      } else {
+        document.getElementById('skills-section').classList.add('hidden');
+      }
+
+      // Links
+      let links = [];
+      if (data.linkedin) links.push(`<a href="${data.linkedin}" target="_blank" class="text-blue-600 underline">LinkedIn</a>`);
+      if (data.website) links.push(`<a href="${data.website}" target="_blank" class="text-blue-600 underline">Portfolio</a>`);
+      if (links.length) {
+        document.getElementById('links-section').classList.remove('hidden');
+        document.getElementById('resume-links').innerHTML = links.join(' | ');
+      } else {
+        document.getElementById('links-section').classList.add('hidden');
+      }
+    }
+
+    function downloadPDF() {
+      const element = document.getElementById('resume');
+      const opt = { margin: 0, filename: 'resume.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+      html2pdf().set(opt).from(element).save();
+    }
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cfc3c21810e446e',t:'MTc3MTQwNDE4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
